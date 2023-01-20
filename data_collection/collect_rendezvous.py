@@ -51,6 +51,8 @@ def get_reviews(links, ids, items_limit=None, reviews_limit=None):
                             "]+", flags=re.UNICODE)
 
     with open('../data/data_clothes_rendezvous.jsonl', 'w+', encoding='utf-8') as f:
+        f.write('[\n')
+
         if items_limit: links = links[:items_limit]
         for j in tqdm(range(len(links))):
             url = links[j]
@@ -97,4 +99,10 @@ def get_reviews(links, ids, items_limit=None, reviews_limit=None):
                     new_item['reviews'].append(new_review)
 
                 if len(new_item['reviews']) <= 0: continue
-                json.dump(new_item, f, ensure_ascii=False, indent=2)
+                
+                s = json.dumps(new_item, ensure_ascii=False, indent=2)
+                if j < len(links)-1:
+                    s += ','
+                f.write(s + '\n')
+
+        f.write(']')

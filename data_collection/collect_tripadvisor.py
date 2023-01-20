@@ -48,6 +48,8 @@ def get_reviews(links, city, hotels_limit=200, reviews_limit=101):
     tokenize = lambda x: re.findall(r"[\w']+|[.,!?;]+", x)
 
     with open(f'../data/data_hotels_{city}.jsonl', 'w+', encoding='utf-8') as f:
+        f.write('[\n')
+
         if hotels_limit:
             links = links[:hotels_limit]
         for link in tqdm(links):
@@ -82,4 +84,10 @@ def get_reviews(links, city, hotels_limit=200, reviews_limit=101):
                     new_item['reviews'].append(new_review)
 
             if len(new_item['reviews']) <= 0: continue
-            json.dump(new_item, f, ensure_ascii=False, indent=2)
+
+            s = json.dumps(new_item, ensure_ascii=False, indent=2)
+            if i < len(links)-1:
+                s += ','
+            f.write(s + '\n')
+
+        f.write(']')
