@@ -7,20 +7,23 @@ from tqdm import tqdm
 import warnings
 warnings.filterwarnings('ignore')
 
+
 def get_links(URL, links_limit=None, items_per_page=60):
     headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36'}
+
+    links = []
+    ids = []
 
     # URL = "https://www.lamoda.ru/c/355/clothes-zhenskaya-odezhda/?page={}"
     page = requests.get(URL.format(1), headers=headers)
     soup = BeautifulSoup(page.content, "html.parser")
     num_pages = soup.find('span', class_='ui-catalog-search-head-products-count')
-    if not num_pages: num_pages = 1300 # grows every day
-    num_pages = int(''.join(re.findall(r"[0-9]+", num_pages.text)))
+    if not num_pages: 
+        num_pages = 1300 # grows every day
+    else:
+        num_pages = int(''.join(re.findall(r"[0-9]+", num_pages.text)))
     if links_limit:
-        num_pages = min(num_pages, links_limit // items_per_page) 
-
-    links = []
-    ids = []
+        num_pages = min(num_pages, links_limit // items_per_page)
 
     for i in tqdm(range(1, num_pages)):
         page = requests.get(URL.format(i), headers=headers)
@@ -42,7 +45,7 @@ def get_links(URL, links_limit=None, items_per_page=60):
     return links, ids
 
 
-def get_reviews(links, ids, items_limit=None, reviews_limit=None):
+def get_reviews(links, ids, items_limit=None, reviews_limit=None, name='lamoda'):
     scheme = "https://www.lamoda.ru/api/v1/product/reviews?limit=50&offset={}&sku={}&sort=date&sort_direction=desc&only_with_photos=false"
 
     tokenize = lambda x: re.findall(r"[\w']+|[.,!?;]+", x)
@@ -54,7 +57,7 @@ def get_reviews(links, ids, items_limit=None, reviews_limit=None):
             u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
                             "]+", flags=re.UNICODE)
 
-    with open('../data/data_clothes_lamoda.jsonl', 'w+', encoding='utf-8') as f:
+    with open(f'../data/data_clothes_{name}.jsonl', 'w+', encoding='utf-8') as f:
         f.write('[\n')
 
         if items_limit: links = links[:items_limit]
@@ -96,8 +99,9 @@ def get_reviews(links, ids, items_limit=None, reviews_limit=None):
                     if len(new_item['reviews']) <= 0: continue
                     
                     s = json.dumps(new_item, ensure_ascii=False, indent=2)
-                    if i < len(links)-1:
-                        s += ','
-                    f.write(s + '\n')
+                    f.write(s + ',\n')
 
+        dummy = {'id': 'none', 'reviews':[]}
+        s = json.dumps(dummy, ensure_ascii=False, indent=2)
+        f.write(s + '\n')
         f.write(']')

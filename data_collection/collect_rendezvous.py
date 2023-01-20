@@ -7,6 +7,7 @@ from tqdm import tqdm
 import warnings
 warnings.filterwarnings('ignore')
 
+
 def get_links(URL, links_limit=None):
     links = []
     ids = []
@@ -19,7 +20,7 @@ def get_links(URL, links_limit=None):
 
     pages = int(soup.findAll('li', class_='page')[-1].find('a').text)
     if links_limit:
-        pages = min(pages, links_limit)
+        pages = min(pages, links_limit // 40 + 1) + 1
 
     for i in tqdm(range(1, pages)):
         page = requests.get(URL.format(i), headers=headers)
@@ -38,7 +39,7 @@ def get_links(URL, links_limit=None):
     return links, ids
 
 
-def get_reviews(links, ids, items_limit=None, reviews_limit=None):
+def get_reviews(links, ids, items_limit=None, reviews_limit=None, name='rendezvous'):
     # URL = "https://www.rendez-vous.ru/catalog/odezhda/futbolka/calzetti_top2f_noodles1_chernyy-3348035/"
 
     headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36'}
@@ -50,7 +51,7 @@ def get_reviews(links, ids, items_limit=None, reviews_limit=None):
             u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
                             "]+", flags=re.UNICODE)
 
-    with open('../data/data_clothes_rendezvous.jsonl', 'w+', encoding='utf-8') as f:
+    with open(f'../data/data_clothes_{name}.jsonl', 'w+', encoding='utf-8') as f:
         f.write('[\n')
 
         if items_limit: links = links[:items_limit]
@@ -101,8 +102,9 @@ def get_reviews(links, ids, items_limit=None, reviews_limit=None):
                 if len(new_item['reviews']) <= 0: continue
                 
                 s = json.dumps(new_item, ensure_ascii=False, indent=2)
-                if j < len(links)-1:
-                    s += ','
-                f.write(s + '\n')
+                f.write(s + ',\n')
 
+        dummy = {'id': 'none', 'reviews':[]}
+        s = json.dumps(dummy, ensure_ascii=False, indent=2)
+        f.write(s + '\n')
         f.write(']')

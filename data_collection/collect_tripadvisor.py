@@ -86,8 +86,9 @@ def get_reviews(links, city, hotels_limit=200, reviews_limit=101):
             if len(new_item['reviews']) <= 0: continue
 
             s = json.dumps(new_item, ensure_ascii=False, indent=2)
-            if i < len(links)-1:
-                s += ','
-            f.write(s + '\n')
+            f.write(s + ',\n')
 
+        dummy = {'id': 'none', 'reviews':[]}
+        s = json.dumps(dummy, ensure_ascii=False, indent=2)
+        f.write(s + '\n')
         f.write(']')
