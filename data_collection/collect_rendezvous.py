@@ -8,7 +8,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 
-def get_links(URL, links_limit=None):
+def get_links(URL, links_limit=None, items_per_page=40):
     links = []
     ids = []
 
@@ -20,7 +20,7 @@ def get_links(URL, links_limit=None):
 
     pages = int(soup.findAll('li', class_='page')[-1].find('a').text)
     if links_limit:
-        pages = min(pages, links_limit // 40 + 1) + 1
+        pages = min(pages, links_limit // items_per_page) + 1
 
     for i in tqdm(range(1, pages)):
         page = requests.get(URL.format(i), headers=headers)

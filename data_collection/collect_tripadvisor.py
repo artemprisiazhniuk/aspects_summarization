@@ -4,6 +4,7 @@ from nltk.tokenize import sent_tokenize
 import re
 import json
 from tqdm import tqdm
+import time
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -43,7 +44,16 @@ def get_links(URL, links_limit=200):
 
 
 def get_reviews(links, city, hotels_limit=200, reviews_limit=101):
-    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36'}
+    headers = {
+        'Connection': 'keep-alive',
+        'Cache-Control': 'max-age=0',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36 OPR/40.0.2308.81',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'DNT': '1',
+        'Accept-Encoding': 'gzip, deflate, lzma, sdch',
+        'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4'
+        }
     class_to_rating = lambda x: int(x[-2:]) / 10
     tokenize = lambda x: re.findall(r"[\w']+|[.,!?;]+", x)
 
@@ -70,18 +80,22 @@ def get_reviews(links, city, hotels_limit=200, reviews_limit=101):
 
             if num_reviews <= 0: continue
             
-            for i in range(5, num_reviews, 5):
-                html2 = requests.get(link.format(i), headers=headers)
-                item_soup = BeautifulSoup(html2.content,'lxml')
-                for r in item_soup.findAll('div', class_='YibKl MC R2 Gi z Z BB pBbQr'):
-                    review_rating = class_to_rating(r.find('span', class_='ui_bubble_rating')['class'][-1])
-                    review_text = r.find('q').text
+            try:
+                for i in range(5, num_reviews, 5):
+                    time.sleep(0.01)
+                    html2 = requests.get(link.format(i), headers=headers)
+                    item_soup = BeautifulSoup(html2.content,'lxml')
+                    for r in item_soup.findAll('div', class_='YibKl MC R2 Gi z Z BB pBbQr'):
+                        review_rating = class_to_rating(r.find('span', class_='ui_bubble_rating')['class'][-1])
+                        review_text = r.find('q').text
 
-                    if len(review_text) <= 0: continue
+                        if len(review_text) <= 0: continue
 
-                    review_sentences = [' '.join(tokenize(t)) for t in sent_tokenize(review_text, language='russian')]
-                    new_review = {'sentences': review_sentences, 'rating': review_rating}
-                    new_item['reviews'].append(new_review)
+                        review_sentences = [' '.join(tokenize(t)) for t in sent_tokenize(review_text, language='russian')]
+                        new_review = {'sentences': review_sentences, 'rating': review_rating}
+                        new_item['reviews'].append(new_review)
+            except: 
+                continue
 
             if len(new_item['reviews']) <= 0: continue
 

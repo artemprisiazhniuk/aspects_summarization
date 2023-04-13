@@ -19,7 +19,7 @@ def get_links(URL, links_limit=None, items_per_page=60):
     soup = BeautifulSoup(page.content, "html.parser")
     num_pages = soup.find('span', class_='ui-catalog-search-head-products-count')
     if not num_pages: 
-        num_pages = 1300 # grows every day
+        num_pages = 3000 # grows every day
     else:
         num_pages = int(''.join(re.findall(r"[0-9]+", num_pages.text)))
     if links_limit:
@@ -74,6 +74,7 @@ def get_reviews(links, ids, items_limit=None, reviews_limit=None, name='lamoda')
             reviews_dict = json.loads(reviews.text)
             if 'reviews' not in reviews_dict: continue
             num_reviews = len(reviews_dict['reviews'])
+            if num_reviews is None: continue
             num_reviews = min(num_reviews, reviews_limit)
 
             for j in range(0, num_reviews, 50):
