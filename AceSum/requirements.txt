@@ -1,0 +1,9 @@
+numpy==1.23.2
+tqdm==4.64.1
+torch==1.13.1
+transformers==4.24.0
+datasets==2.10.0
+nltk==3.3
+wandb==0.13.9
+six==1.16.0
+hazm==0.7.0
