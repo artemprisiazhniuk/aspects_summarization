@@ -1,6 +1,6 @@
 # User Review Summarization in Russian
 
-This project researches the use of currently available architectures for the Russian language opinion summarization.
+This project researches the use of currently available architectures for the Russian language opinion summarization. We explored the usage of PlanSum, AceSum, QT and SemAE.
 
 For every method in its folder you can see 'train.sh' file that reproduces training from scratch and instructions from the authors.
 
