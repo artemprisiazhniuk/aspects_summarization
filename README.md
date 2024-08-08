@@ -1,5 +1,7 @@
 # User Review Summarization in Russian
 
+Prisiazhniuk, A., Malykh, V. (2024). User Review Summarization in Russian. In: Ignatov, D.I., et al. Recent Trends in Analysis of Images, Social Networks and Texts. AIST 2023. Communications in Computer and Information Science, vol 1905. Springer, Cham. https://doi.org/10.1007/978-3-031-67008-4_7
+
 This project researches the use of currently available architectures for the Russian language opinion summarization. We explored unsupervised and weakly-supervised settings, the usage of PlanSum, AceSum, QT and SemAE models.
 
 For every method in its folder you can see 'train.sh' file that reproduces training from scratch and instructions from the authors. The models were trained as in the corresponding papers with small deviations for the adaptation to the Russian language data.
